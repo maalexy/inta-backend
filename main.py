@@ -36,8 +36,8 @@ def check_if_token_in_blacklist(decrypted_token):
 @jwt.expired_token_loader
 @jwt.invalid_token_loader
 @jwt.unauthorized_loader
-def token_error()
-    return 
+def token_error():
+    return jsonify(error='User is not authorized for this call'), 401
 
 ### Endpoints
 
@@ -48,13 +48,13 @@ def hello_world():
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    user = data['user']
-    password = data['password']
+    user = data.get('user', None)
+    password = data.get('password', None)
     pwhash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-    email = data['email']
-    if User.query.filter_by(username=usern).first() != None:
+    email = data.get('email', None)
+    if User.query.filter_by(username=user).first() != None:
         return jsonify(error='Username is already in use'), 409
-    new_user = User(username=usern, password=pwhash, email=email_f 
+    new_user = User(username=user, password=pwhash, email=email)
     db.session.add(new_user)
     db.session.commit()
     return jsonify(msg='Success'), 200
