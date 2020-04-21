@@ -20,6 +20,8 @@ app.config['SECRET_KEY'] = os.environ.get('INTA_BACKEND_SECRET', '123456')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///.local/lite.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+app.config['APPLICATION_ROOT'] = '/api'
+
 jwt = JWTManager(app)
 
 db = SQLAlchemy(app)
@@ -45,7 +47,7 @@ def token_error():
 def hello_world():
     return "HelloWorld"
 
-@app.route('/register', methods=['POST'])
+@app.route('/user/register', methods=['POST'])
 def register():
     data = request.get_json()
     user = data.get('user', None)
@@ -59,24 +61,24 @@ def register():
     db.session.commit()
     return jsonify(msg='Success'), 200
 
-@app.route('/login', methods=['POST'])
+@app.route('/user/login', methods=['POST'])
 def login():
     data = request.get_json()
-    username = request.form['username']
-    password = request.form['password']
-    user = User.query.filter_by(username=usern).first()
-    if user == None:
+    user = data.get('user', None)
+    password = data.get('password', None)
+    userdb = User.query.filter_by(username=user).first()
+    if userdb == None:
         return jsonify(error='Wrong username or password'), 401
-    if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+    if not bcrypt.checkpw(password.encode('utf-8'), userdb.password.encode('utf-8')):
         return jsonify(error='Wrong username or password'), 401
-    token = create_access_token(identity=usern)
+    token = create_access_token(identity=user)
     return jsonify(msg='Success', token=token), 200
 
-@app.route('/passwordreset')
+@app.route('/user/passwordreset')
 def passwordreset():
     data = request.get_json()
-    username = request['user']
-    email = request['email']
+    username = data.get('user', None)
+    email = data.get('email', None)
     user = None
     if username:
         user = User.query.filter_by(username=username).first()
@@ -95,14 +97,14 @@ def jwtecho():
 
 # Requires authentication
 # TODO: JWT token handling
-@app.route('/logout', methods=['POST'])
+@app.route('/user/logout', methods=['POST'])
 @jwt_required
 def logout():
     jti = get_raw_jwt()['jti']
     blacklist_jwt.add(jti)
     return jsonify(msg='Success'), 200
 
-@app.route('/delete_user', methods=['POST'])
+@app.route('/user/delete', methods=['DELETE'])
 @jwt_required
 def delete_user():
     usern = get_jwt_identity()
@@ -113,6 +115,11 @@ def delete_user():
 
 ### Main
 
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
+
+app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {"/api": app})
+
 if __name__ == '__main__':
-    app.run()
+   app.run('0.0.0.0', 5080)
+
 
