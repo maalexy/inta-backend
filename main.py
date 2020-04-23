@@ -11,7 +11,7 @@ import bcrypt
 ### Inits, setups
 app = Flask(__name__)
 
-app.config['JWT_SECRET_KEY'] = os.environ.get('INAT_BACKEND_JWT_SECRET',os.getrandom(16))
+app.config['JWT_SECRET_KEY'] = os.environ.get('INTA_BACKEND_JWT_SECRET',os.getrandom(16))
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=4)
 app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access']
@@ -41,11 +41,16 @@ def check_if_token_in_blacklist(decrypted_token):
 def token_error():
     return jsonify(error='User is not authorized for this call'), 401
 
-### Endpoints
+###### Endpoints
 
 @app.route('/helloworld')
 def hello_world():
     return "HelloWorld"
+
+
+
+
+### Password
 
 @app.route('/user/register', methods=['POST'])
 def register():
@@ -61,7 +66,7 @@ def register():
     db.session.commit()
     return jsonify(msg='Success'), 200
 
-@app.route('/user/login', methods=['POST'])
+@app.route('/user/login', methods=['GET'])
 def login():
     data = request.get_json()
     user = data.get('user', None)
@@ -74,7 +79,7 @@ def login():
     token = create_access_token(identity=user)
     return jsonify(msg='Success', token=token), 200
 
-@app.route('/user/passwordreset')
+@app.route('/user/passwordreset', methods=['POST'])
 def passwordreset():
     data = request.get_json()
     username = data.get('user', None)
@@ -89,14 +94,12 @@ def passwordreset():
     # send email to user.email
     return jsonify(msg='Success'), 200
 
-
 @app.route('/.dev/jwtecho')
 @jwt_required
 def jwtecho():
     return jsonify(msg='Success'), 200
 
 # Requires authentication
-# TODO: JWT token handling
 @app.route('/user/logout', methods=['POST'])
 @jwt_required
 def logout():
@@ -104,14 +107,37 @@ def logout():
     blacklist_jwt.add(jti)
     return jsonify(msg='Success'), 200
 
-@app.route('/user/delete', methods=['DELETE'])
+
+
+
+### User data
+
+@app.route('/user/profile', methods=['POST'])
 @jwt_required
-def delete_user():
-    usern = get_jwt_identity()
-    User.query.filter_by(username=usern).delete()
-    db.session.commit()
-    logout()
-    return jsonify(msg='Success'), 200
+def profile_write():
+    pass
+
+
+@app.route('/user/profile', methods=['GET'])
+@jwt_required
+def profile_read():
+    pass
+
+@app.route('/university', methods=['POST'])
+@jwt_required
+def university_add():
+    pass
+
+@app.route('/university/all')
+@jwt_required
+def university_all():
+    pass
+
+@app.route('/university/students')
+@jwt_required
+def university_students():
+    pass
+
 
 ### Main
 
