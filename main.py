@@ -69,14 +69,14 @@ def register():
 @app.route('/user/login', methods=['GET'])
 def login():
     data = request.get_json()
-    user = data.get('user', None)
+    username = data.get('user', None)
     password = data.get('password', None)
-    userdb = User.query.filter_by(username=user).first()
-    if userdb == None:
+    user = User.query.filter_by(username=username).first()
+    if user == None:
         return jsonify(error='Wrong username or password'), 401
     if not bcrypt.checkpw(password.encode('utf-8'), userdb.password.encode('utf-8')):
         return jsonify(error='Wrong username or password'), 401
-    token = create_access_token(identity=user)
+    token = create_access_token(identity=user.id)
     return jsonify(msg='Success', token=token), 200
 
 @app.route('/user/passwordreset', methods=['POST'])
@@ -115,28 +115,76 @@ def logout():
 @app.route('/user/profile', methods=['POST'])
 @jwt_required
 def profile_write():
-    pass
-
+    data = request.get_json()
+    user_id = data['user_id']
+    user = User.query.filter_by(id = user_id).first()
+    if 'user' in data:
+        user.username = data['user']
+    if 'password' in data:
+        password = data['password']
+        pwhash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        user.password = pwhash
+    if 'name' in data:
+        user.name = data['name']
+    if 'email' in data:
+        user.email = data['email']
+    if 'university_id' in data:
+        user.university_id = data['university_id']
+    if 'group' in data:
+        user.group = data['group']
+    if 'activity' in data:
+        user.activity = data['activity']
+    # TODO: contacts
+    db.session.add(user)
+    db.session.commit()
+    return jsonify(msg='Success'), 200
 
 @app.route('/user/profile', methods=['GET'])
 @jwt_required
 def profile_read():
-    pass
+    user_id = request.get_json()['user_id']
+    user = User.query.filter_by(id = user_id).first()
+    return jsonify({
+            'user_id': user.id,
+            'user': user.username,
+            'name': user.name,
+            'email': user.email,
+            'university_id': user.university_id,
+            'group': user.group,
+            'activity': user.activity,
+            'contacts': [] # TODO: contacts
+        }), 200
 
 @app.route('/university', methods=['POST'])
 @jwt_required
 def university_add():
-    pass
+    data = request.get_json()
+    university = data['university']
+    uni = University.query.filter_by(university=university).first()
+    if uni == None:
+        uni = University(university=university)
+        db.session.add(uni)
+        db.session.commit()
+    return jsonify({uni.id : uni.university}), 200
 
 @app.route('/university/all')
 @jwt_required
 def university_all():
-    pass
+    all_uni = University.query.all()
+    ret = {}
+    for uni in all_uni:
+        ret[uni.id] = uni.university
+    return jsonify(ret), 200
 
 @app.route('/university/students')
 @jwt_required
 def university_students():
-    pass
+    uni_id = request.get_json()['university_id']
+    students = User.query.filter_by(university_id=uni_id).all()
+    ret = []
+    for st in students:
+        ret.append(st.id)
+    return jsonify(ret), 200
 
 
 ### Main
