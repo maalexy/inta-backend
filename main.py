@@ -38,8 +38,8 @@ def check_if_token_in_blacklist(decrypted_token):
 @jwt.expired_token_loader
 @jwt.invalid_token_loader
 @jwt.unauthorized_loader
-def token_error():
-    return jsonify(error='User is not authorized for this call'), 401
+def token_error(err):
+    return jsonify(error='User is not authorized for this call', err=err), 401
 
 ###### Endpoints
 
@@ -74,7 +74,7 @@ def login():
     user = User.query.filter_by(username=username).first()
     if user == None:
         return jsonify(error='Wrong username or password'), 401
-    if not bcrypt.checkpw(password.encode('utf-8'), userdb.password.encode('utf-8')):
+    if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
         return jsonify(error='Wrong username or password'), 401
     token = create_access_token(identity=user.id)
     return jsonify(msg='Success', token=token), 200
@@ -116,8 +116,8 @@ def logout():
 @jwt_required
 def profile_write():
     data = request.get_json()
-    user_id = data['user_id']
-    user = User.query.filter_by(id = user_id).first()
+    username = data['user']
+    user = User.query.filter_by(username = username).first()
     if 'user' in data:
         user.username = data['user']
     if 'password' in data:
@@ -142,8 +142,8 @@ def profile_write():
 @app.route('/user/profile', methods=['GET'])
 @jwt_required
 def profile_read():
-    user_id = request.get_json()['user_id']
-    user = User.query.filter_by(id = user_id).first()
+    username = request.get_json()['user']
+    user = User.query.filter_by(username=username).first()
     return jsonify({
             'user_id': user.id,
             'user': user.username,
