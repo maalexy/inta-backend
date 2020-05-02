@@ -202,23 +202,23 @@ def challange_post():
     ps = 0
     for goal in data.get('goal', []):
         gl = ChallangeGoal(challange_id = ch.id,
-                            text = goal.get('text', None)
-                            category = goal.get('category', None)
-                            requires = goal.get('required', False)
+                            text = goal.get('text', None),
+                            category = goal.get('category', None),
+                            requires = goal.get('required', False),
                             position = ps)
         db.session.add(gl)
         db.session.commit()
         ps += 1
     return jsonify(challange_id=ch.id), 200
 
-@app.route('challange', methods=['GET'])
+@app.route('/challange', methods=['GET'])
 @jwt_required
 def challange_get():
     ch_id = request.get_json()['challange_id']
     ch = Challange.query.filter_by(id=ch_id).first()
     goal_data = []
     goals = ChallangeGoal.query.fileter_by(challange_id=ch_id).all()
-    for gl in goals
+    for gl in goals:
         goal_data.append({
             'text': gl.text,
             'category': gl.category,

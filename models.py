@@ -38,13 +38,13 @@ class Challange(db.Model):
     title = db.Column(db.String)
     text = db.Column(db.String)
 
-class ChallangeGoal(db.model)
+class ChallangeGoal(db.Model):
     __tablename__= 'challange_goal'
 
     id = db.Column(db.Integer, primary_key=True)
     challange_id = db.Column(db.Integer)
     text = db.Column(db.String)
     category = db.Column(db.String)
-    required = db.Column(db.Bool)
+    required = db.Column(db.Boolean)
     position = db.Column(db.Integer)
 
