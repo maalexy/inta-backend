@@ -231,6 +231,17 @@ def challange_get():
             'goals': goal_data
         }), 200
 
+
+@app.route('/challenge/all')
+@jwt_required
+def challange_all():
+    ch_all = Challange.query().all()
+    ret = []
+    for ch in ch_all:
+        ret.append(ch.id)
+    return jsonify(ret), 200
+
+
 ### Main
 
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
