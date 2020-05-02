@@ -50,7 +50,7 @@ def hello_world():
 
 
 
-### Password
+### Login/Password
 
 @app.route('/user/register', methods=['POST'])
 def register():
@@ -186,6 +186,50 @@ def university_students():
         ret.append(st.username)
     return jsonify(ret), 200
 
+
+
+
+
+### Challange
+
+@app.route('/challange', methods=['POST'])
+@jwt_required
+def challange_post():
+    data = request.get_json()
+    ch = Challange(title = data.get('title', None), text = data.get('text', None))
+    db.session.add(ch)
+    db.session.commit()
+    ps = 0
+    for goal in data.get('goal', []):
+        gl = ChallangeGoal(challange_id = ch.id,
+                            text = goal.get('text', None)
+                            category = goal.get('category', None)
+                            requires = goal.get('required', False)
+                            position = ps)
+        db.session.add(gl)
+        db.session.commit()
+        ps += 1
+    return jsonify(challange_id=ch.id), 200
+
+@app.route('challange', methods=['GET'])
+@jwt_required
+def challange_get():
+    ch_id = request.get_json()['challange_id']
+    ch = Challange.query.filter_by(id=ch_id).first()
+    goal_data = []
+    goals = ChallangeGoal.query.fileter_by(challange_id=ch_id).all()
+    for gl in goals
+        goal_data.append({
+            'text': gl.text,
+            'category': gl.category,
+            'required': gl.required,
+            'position': gl.position})
+    goal_data.sort(key= lambda goal: goal['position'])
+    return jsonify({
+            'title': ch.title,
+            'text': ch.text,
+            'goals': goal_data
+        }), 200
 
 ### Main
 
