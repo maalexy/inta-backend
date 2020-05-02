@@ -25,7 +25,7 @@ app.config['APPLICATION_ROOT'] = '/api'
 jwt = JWTManager(app)
 
 db = SQLAlchemy(app)
-from models import User
+from models import *
 
 # TODO: use database
 blacklist_jwt = set()
@@ -183,7 +183,7 @@ def university_students():
     students = User.query.filter_by(university_id=uni_id).all()
     ret = []
     for st in students:
-        ret.append(st.id)
+        ret.append(st.username)
     return jsonify(ret), 200
 
 
