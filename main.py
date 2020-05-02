@@ -192,7 +192,7 @@ def university_students():
 
 ### Challange
 
-@app.route('/challange', methods=['POST'])
+@app.route('/challenge', methods=['POST'])
 @jwt_required
 def challange_post():
     data = request.get_json()
@@ -211,7 +211,7 @@ def challange_post():
         ps += 1
     return jsonify(challange_id=ch.id), 200
 
-@app.route('/challange', methods=['GET'])
+@app.route('/challenge', methods=['GET'])
 @jwt_required
 def challange_get():
     ch_id = request.get_json()['challange_id']
