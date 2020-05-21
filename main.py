@@ -134,9 +134,14 @@ def profile_write():
         user.group = data['group']
     if 'activity' in data:
         user.activity = data['activity']
-    # TODO: contacts
     db.session.add(user)
     db.session.commit()
+    if 'contact' in data:
+        UserContact.query.filter_by(user_id = user.id).delete()
+        for cform in data['contact']:
+            new_cont = UserContact(user_id = user.id, form = cform, address = data['contact'][cform])
+            db.session.add(nex_cont)
+        db.session.commit()
     return jsonify(msg='Success'), 200
 
 @app.route('/user/profile', methods=['GET'])
@@ -152,8 +157,14 @@ def profile_read():
             'university_id': user.university_id,
             'group': user.group,
             'activity': user.activity,
-            'contacts': [] # TODO: contacts
+            'contacts': {uc.form: uc.address for uc in UserContact.query.filter_by(user_id = user.id).all()} 
         }), 200
+
+
+
+
+
+### University
 
 @app.route('/university', methods=['POST'])
 @jwt_required
@@ -190,34 +201,34 @@ def university_students():
 
 
 
-### Challange
+### Challenge
 
 @app.route('/challenge', methods=['POST'])
 @jwt_required
-def challange_post():
+def challenge_post():
     data = request.get_json()
-    ch = Challange(title = data.get('title', None), text = data.get('text', None))
+    ch = Challenge(title = data.get('title', None), text = data.get('text', None))
     db.session.add(ch)
     db.session.commit()
     ps = 0
     for goal in data.get('goal', []):
-        gl = ChallangeGoal(challange_id = ch.id,
+        gl = ChallengeGoal(challenge_id = ch.id,
                             text = goal.get('text', None),
                             category = goal.get('category', None),
                             requires = goal.get('required', False),
                             position = ps)
         db.session.add(gl)
-        db.session.commit()
         ps += 1
-    return jsonify(challange_id=ch.id), 200
+    db.session.commit()
+    return jsonify(challenge_id=ch.id), 200
 
 @app.route('/challenge', methods=['GET'])
 @jwt_required
-def challange_get():
-    ch_id = request.get_json()['challange_id']
-    ch = Challange.query.filter_by(id=ch_id).first()
+def challenge_get():
+    ch_id = request.get_json()['challenge_id']
+    ch = Challenge.query.filter_by(id=ch_id).first()
     goal_data = []
-    goals = ChallangeGoal.query.fileter_by(challange_id=ch_id).all()
+    goals = ChallengeGoal.query.fileter_by(challenge_id=ch_id).all()
     for gl in goals:
         goal_data.append({
             'text': gl.text,
@@ -234,8 +245,8 @@ def challange_get():
 
 @app.route('/challenge/all')
 @jwt_required
-def challange_all():
-    ch_all = Challange.query().all()
+def challenge_all():
+    ch_all = Challenge.query().all()
     ret = []
     for ch in ch_all:
         ret.append(ch.id)

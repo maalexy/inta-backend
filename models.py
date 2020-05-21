@@ -31,18 +31,18 @@ class University(db.Model):
     university = db.Column(db.String)
 
 
-class Challange(db.Model):
-    __tablename__ = 'challange'
+class Challenge(db.Model):
+    __tablename__ = 'challenge'
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)
     text = db.Column(db.String)
 
-class ChallangeGoal(db.Model):
-    __tablename__= 'challange_goal'
+class ChallengeGoal(db.Model):
+    __tablename__= 'challenge_goal'
 
     id = db.Column(db.Integer, primary_key=True)
-    challange_id = db.Column(db.Integer)
+    challenge_id = db.Column(db.Integer)
     text = db.Column(db.String)
     category = db.Column(db.String)
     required = db.Column(db.Boolean)
