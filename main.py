@@ -215,8 +215,7 @@ def challenge_post():
         gl = ChallengeGoal(challenge_id = ch.id,
                             text = goal.get('text', None),
                             category = goal.get('category', None),
-                            requires = goal.get('required', False),
-                            position = ps)
+                            required = goal.get('required', False))
         db.session.add(gl)
         ps += 1
     db.session.commit()
@@ -252,6 +251,18 @@ def challenge_all():
         ret.append(ch.id)
     return jsonify(ret), 200
 
+@app.route('/challenge/add_goal', methods=['POST'])
+@jwt_required
+def challenge_add_goal():
+    data = request.get_json()
+    ch_id = data['challenge_id']
+    for goal in data.get('goal', []):
+        gl = ChallengeGoal(challenge_id = ch.id,
+                            text = goal.get('text', None),
+                            category = goal.get('category', None),
+                            required = goal.get('required', False))
+        db.session.add(gl)
+    db.session.commit()
 
 ### Main
 
