@@ -209,15 +209,16 @@ def challenge_post():
     data = request.get_json()
     ch = Challenge(title = data.get('title', None), text = data.get('text', None))
     db.session.add(ch)
-    db.session.commit()
-    ps = 0
+    gpos = 1
     for goal in data.get('goal', []):
         gl = ChallengeGoal(challenge_id = ch.id,
                             text = goal.get('text', None),
                             category = goal.get('category', None),
-                            required = goal.get('required', False))
+                            point = goal.get('point', 0)
+                            required = goal.get('required', False),
+                            pos=data['contact'][cform].get('pos', str(gpos)))
         db.session.add(gl)
-        ps += 1
+        gpos += 1
     db.session.commit()
     return jsonify(challenge_id=ch.id), 200
 
@@ -227,14 +228,13 @@ def challenge_get():
     ch_id = request.get_json()['challenge_id']
     ch = Challenge.query.filter_by(id=ch_id).first()
     goal_data = []
-    goals = ChallengeGoal.query.fileter_by(challenge_id=ch_id).all()
+    goals = ChallengeGoal.query.fileter_by(challenge_id=ch_id).order_by(pos).all()
     for gl in goals:
         goal_data.append({
             'text': gl.text,
             'category': gl.category,
             'required': gl.required,
-            'position': gl.position})
-    goal_data.sort(key= lambda goal: goal['position'])
+            'point': gl.point})
     return jsonify({
             'title': ch.title,
             'text': ch.text,
@@ -245,7 +245,7 @@ def challenge_get():
 @app.route('/challenge/all')
 @jwt_required
 def challenge_all():
-    ch_all = Challenge.query().all()
+    ch_all = Challenge.query.all()
     ret = []
     for ch in ch_all:
         ret.append(ch.id)
@@ -260,7 +260,8 @@ def challenge_add_goal():
         gl = ChallengeGoal(challenge_id = ch.id,
                             text = goal.get('text', None),
                             category = goal.get('category', None),
-                            required = goal.get('required', False))
+                            required = goal.get('required', False)
+                            pos = goal.get('pos', 'ZZZ'))
         db.session.add(gl)
     db.session.commit()
 

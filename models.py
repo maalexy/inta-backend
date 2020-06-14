@@ -35,6 +35,7 @@ class Challenge(db.Model):
     __tablename__ = 'challenge'
 
     id = db.Column(db.Integer, primary_key=True)
+    pos = db.Column(db.String)
     title = db.Column(db.String)
     text = db.Column(db.String)
 
@@ -45,5 +46,14 @@ class ChallengeGoal(db.Model):
     challenge_id = db.Column(db.Integer)
     text = db.Column(db.String)
     category = db.Column(db.String)
+    point = db.Column(db.Integer)
     required = db.Column(db.Boolean)
+    pos = db.Column(db.String)
 
+class ChallengeFile(db.Model):
+    __tablename__ = 'challenge_file'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    challenge_id = db.Column(db.Integer)
+    file = db.Column(db.String)
