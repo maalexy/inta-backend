@@ -216,7 +216,7 @@ def challenge_post():
                             category = goal.get('category', None),
                             point = goal.get('point', 0),
                             required = goal.get('required', False),
-                            pos=data['goal'][cform].get('pos', str(gpos)))
+                            pos = goal.get('pos', str(gpos)))
         db.session.add(gl)
         gpos += 1
     db.session.commit()
