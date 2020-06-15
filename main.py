@@ -236,7 +236,6 @@ def challenge_get():
     goals = ChallengeGoal.query.filter_by(challenge_id=ch_id).order_by(ChallengeGoal.pos).all()
     for gl in goals:
         goal_data.append({
-            "ch_id": gl.challenge_id,
             'text': gl.text,
             'category': gl.category,
             'required': gl.required,
