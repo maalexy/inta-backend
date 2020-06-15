@@ -233,7 +233,7 @@ def challenge_get():
     ch_id = request.get_json()['challenge_id']
     ch = Challenge.query.filter_by(id=ch_id).first()
     goal_data = []
-    goals = ChallengeGoal.query.order_by(ChallengeGoal.pos).all()
+    goals = ChallengeGoal.query.filter_by(challenge_id=ch_id).order_by(ChallengeGoal.pos).all()
     for gl in goals:
         goal_data.append({
             "ch_id": gl.challenge_id,
