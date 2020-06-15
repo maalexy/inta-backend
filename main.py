@@ -217,7 +217,7 @@ def challenge_post():
         gl = ChallengeGoal(challenge_id = ch.id,
                             text = goal.get('text', None),
                             category = goal.get('category', None),
-                            point = goal.get('point', 0),
+                            score = goal.get('score', 0),
                             required = goal.get('required', False),
                             pos = goal.get('pos', str(gpos)))
         db.session.add(gl)
@@ -237,7 +237,7 @@ def challenge_get():
             'text': gl.text,
             'category': gl.category,
             'required': gl.required,
-            'point': gl.point})
+            'score': gl.score})
     return jsonify({
             'title': ch.title,
             'text': ch.text,

@@ -46,7 +46,7 @@ class ChallengeGoal(db.Model):
     challenge_id = db.Column(db.Integer)
     text = db.Column(db.String)
     category = db.Column(db.String)
-    point = db.Column(db.Integer)
+    score = db.Column(db.Integer)
     required = db.Column(db.Boolean)
     pos = db.Column(db.String)
 
