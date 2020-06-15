@@ -11,7 +11,7 @@ import bcrypt
 ### Inits, setups
 app = Flask(__name__)
 
-app.config['JWT_SECRET_KEY'] = os.environ.get('INTA_BACKEND_JWT_SECRET',os.getrandom(16))
+app.config['JWT_SECRET_KEY'] = os.environ.get('INTA_BACKEND_JWT_SECRET', 'supersecret')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=4)
 app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access']
@@ -207,11 +207,13 @@ def university_students():
 @jwt_required
 def challenge_post():
     data = request.get_json()
+    ch = None
     if 'challenge_id' in data:
         ch = Challenge.query.filter_by(id=data['challenge_id']).first()
     else:
         ch = Challenge(title = data.get('title', None), text = data.get('text', None))
         db.session.add(ch)
+        db.session.commit()
     gpos = 1
     for goal in data.get('goal', []):
         gl = ChallengeGoal(challenge_id = ch.id,
@@ -234,6 +236,7 @@ def challenge_get():
     goals = ChallengeGoal.query.order_by(ChallengeGoal.pos).all()
     for gl in goals:
         goal_data.append({
+            "ch_id": gl.challenge_id,
             'text': gl.text,
             'category': gl.category,
             'required': gl.required,
