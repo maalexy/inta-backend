@@ -207,8 +207,11 @@ def university_students():
 @jwt_required
 def challenge_post():
     data = request.get_json()
-    ch = Challenge(title = data.get('title', None), text = data.get('text', None))
-    db.session.add(ch)
+    if data.has_key('challenge_id'):
+        ch = Challenge.query.filter_by(challenge_id=data['challenge_id']).first()
+    else:
+        ch = Challenge(title = data.get('title', None), text = data.get('text', None))
+        db.session.add(ch)
     gpos = 1
     for goal in data.get('goal', []):
         gl = ChallengeGoal(challenge_id = ch.id,
@@ -228,7 +231,7 @@ def challenge_get():
     ch_id = request.get_json()['challenge_id']
     ch = Challenge.query.filter_by(id=ch_id).first()
     goal_data = []
-    goals = ChallengeGoal.query.filter_by(challenge_id=ch_id).order_by(ChallangeGoal.pos).all()
+    goals = ChallengeGoal.query.filter_by(challenge_id=ch_id).order_by(ChallengeGoal.pos).all()
     for gl in goals:
         goal_data.append({
             'text': gl.text,
@@ -238,7 +241,7 @@ def challenge_get():
     return jsonify({
             'title': ch.title,
             'text': ch.text,
-            'goals': goal_data
+            'goal': goal_data
         }), 200
 
 
