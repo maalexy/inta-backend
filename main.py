@@ -140,7 +140,7 @@ def profile_write():
         UserContact.query.filter_by(user_id = user.id).delete()
         for cform in data['contact']:
             new_cont = UserContact(user_id = user.id, form = cform, address = data['contact'][cform])
-            db.session.add(nex_cont)
+            db.session.add(new_cont)
         db.session.commit()
     return jsonify(msg='Success'), 200
 
@@ -157,7 +157,7 @@ def profile_read():
             'university_id': user.university_id,
             'group': user.group,
             'activity': user.activity,
-            'contacts': {uc.form: uc.address for uc in UserContact.query.filter_by(user_id = user.id).all()} 
+            'contact': {uc.form: uc.address for uc in UserContact.query.filter_by(user_id = user.id).all()} 
         }), 200
 
 
@@ -216,7 +216,7 @@ def challenge_post():
                             category = goal.get('category', None),
                             point = goal.get('point', 0)
                             required = goal.get('required', False),
-                            pos=data['contact'][cform].get('pos', str(gpos)))
+                            pos=data['goal'][cform].get('pos', str(gpos)))
         db.session.add(gl)
         gpos += 1
     db.session.commit()
