@@ -208,7 +208,7 @@ def university_students():
 def challenge_post():
     data = request.get_json()
     if 'challenge_id' in data:
-        ch = Challenge.query.filter_by(challenge_id=data['challenge_id']).first()
+        ch = Challenge.query.filter_by(id=data['challenge_id']).first()
     else:
         ch = Challenge(title = data.get('title', None), text = data.get('text', None))
         db.session.add(ch)
@@ -231,7 +231,7 @@ def challenge_get():
     ch_id = request.get_json()['challenge_id']
     ch = Challenge.query.filter_by(id=ch_id).first()
     goal_data = []
-    goals = ChallengeGoal.query.filter_by(challenge_id=ch_id).order_by(ChallengeGoal.pos).all()
+    goals = ChallengeGoal.query.order_by(ChallengeGoal.pos).all()
     for gl in goals:
         goal_data.append({
             'text': gl.text,
