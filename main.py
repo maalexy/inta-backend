@@ -207,7 +207,7 @@ def university_students():
 @jwt_required
 def challenge_post():
     data = request.get_json()
-    if data.has_key('challenge_id'):
+    if 'challenge_id' in data:
         ch = Challenge.query.filter_by(challenge_id=data['challenge_id']).first()
     else:
         ch = Challenge(title = data.get('title', None), text = data.get('text', None))
